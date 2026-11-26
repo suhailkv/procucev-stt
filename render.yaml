@@ -1,0 +1,21 @@
+# Render Blueprint — free web service. DATABASE_URL (Neon) and GEMINI_API_KEY
+# are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: procucev-stt
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: STT_PROVIDER
+        value: gemini
+      - key: DATABASE_SSL
+        value: 'true'
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
