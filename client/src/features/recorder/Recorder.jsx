@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { healthApi } from '../../lib/api.js';
 import { formatDuration } from '../../lib/format.js';
 import { navigate } from '../../lib/router.js';
 import { useLiveTranscription } from './useLiveTranscription.js';
@@ -19,6 +20,10 @@ const STATUS_TEXT = {
 
 export default function Recorder({ onSaved }) {
   const [lang, setLang] = useState('auto');
+  const [engine, setEngine] = useState(null);
+  useEffect(() => {
+    healthApi.get().then((h) => setEngine(h.stt)).catch(() => {});
+  }, []);
   const t = useLiveTranscription({ onSaved });
   const active = t.status !== 'idle';
   const hasText = t.finals.length > 0 || t.interim;
@@ -30,6 +35,12 @@ export default function Recorder({ onSaved }) {
 
   return (
     <section className="recorder">
+      {engine === 'mock' && (
+        <p className="banner warn">
+          Demo mode: the server is using the offline mock engine, so words shown are placeholders, not real
+          recognition. Set <code>GEMINI_API_KEY</code> and <code>STT_PROVIDER=gemini</code> for real transcription.
+        </p>
+      )}
       <div className="recorder-controls">
         <button
           type="button"

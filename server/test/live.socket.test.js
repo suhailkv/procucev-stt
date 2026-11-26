@@ -23,7 +23,10 @@ function fakeSocket() {
 }
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
-const chunk = Buffer.alloc(3200); // 100 ms of 16 kHz PCM16
+const silence = Buffer.alloc(3200); // 100 ms of 16 kHz PCM16
+// 100 ms of a loud square wave, well above the mock's silence threshold
+const chunk = Buffer.alloc(3200);
+for (let i = 0; i < 1600; i++) chunk.writeInt16LE(i % 20 < 10 ? 8000 : -8000, i * 2);
 
 describe('TranscriptBuffer', () => {
   it('appends finals and falls back to the trailing interim', () => {
@@ -54,13 +57,22 @@ describe('live socket', () => {
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(save).toHaveBeenCalledWith({
-      content: 'hello aaj',
+      content: 'namaste hello',
       language: 'auto',
       source: 'live',
       durationMs: 1000,
     });
     expect(socket.sent.at(-1).type).toBe('saved');
     vi.useRealTimers();
+  });
+
+  it('mock engine ignores silence', async () => {
+    const socket = fakeSocket();
+    handleLiveSocket(socket, { provider: mockProvider, save: vi.fn() });
+    socket.text({ type: 'start' });
+    await tick();
+    for (let i = 0; i < 20; i++) socket.audio(silence);
+    expect(socket.sent.filter((m) => m.type !== 'ready')).toEqual([]);
   });
 
   it('buffers audio sent while the STT session is still connecting', async () => {

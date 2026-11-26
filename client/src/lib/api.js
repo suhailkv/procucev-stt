@@ -33,3 +33,7 @@ export const transcriptionsApi = {
   update: (id, data) => request('PUT', `/transcriptions/${id}`, data),
   remove: (id) => request('DELETE', `/transcriptions/${id}`),
 };
+
+export const healthApi = {
+  get: () => request('GET', '/health'),
+};

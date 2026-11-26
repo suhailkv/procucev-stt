@@ -1,28 +1,43 @@
 /**
  * Offline STT provider for tests and demos without an API key.
- * Emits one interim per chunk and a final word every 5 chunks.
+ * It does NOT recognise speech: while the input is louder than a silence
+ * threshold it emits placeholder words (interim on each voiced chunk, a final
+ * word every 5 voiced chunks). Silence produces nothing, like a real engine.
  */
-const WORDS = ['namaste', 'hello', 'aaj', 'meeting', 'hai', 'at', 'five', 'pm'];
+const WORDS = ['[mock]', 'namaste', 'hello', 'aaj', 'meeting', 'hai', 'at', 'five', 'pm'];
+const SILENCE_RMS = 500; // on the 16-bit scale (0..32767)
+
+/** Root-mean-square loudness of a 16-bit little-endian PCM chunk. */
+export function pcmRms(chunk) {
+  const samples = Math.floor(chunk.length / 2);
+  if (!samples) return 0;
+  let sum = 0;
+  for (let i = 0; i < samples; i++) {
+    const s = chunk.readInt16LE(i * 2);
+    sum += s * s;
+  }
+  return Math.sqrt(sum / samples);
+}
 
 export const mockProvider = {
   name: 'mock',
   async open(_opts, cb) {
-    let chunks = 0;
+    let voiced = 0;
     let closed = false;
-    const finish = () => {
-      if (closed) return;
-      closed = true;
-      cb.onClose();
-    };
     return {
-      sendPcm() {
-        chunks += 1;
-        const word = WORDS[Math.floor(chunks / 5) % WORDS.length];
-        if (chunks % 5 === 0) cb.onFinal(word);
+      sendPcm(chunk) {
+        if (pcmRms(chunk) < SILENCE_RMS) return;
+        voiced += 1;
+        const word = WORDS[Math.floor(voiced / 5) % WORDS.length];
+        if (voiced % 5 === 0) cb.onFinal(word);
         else cb.onInterim(word);
       },
       endAudio() {},
-      close: finish,
+      close() {
+        if (closed) return;
+        closed = true;
+        cb.onClose();
+      },
     };
   },
 };

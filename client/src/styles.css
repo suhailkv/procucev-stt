@@ -88,6 +88,8 @@ h1 em { color: var(--saffron); font-style: italic; }
 .banner { margin: 16px 0 0; padding: 10px 14px; border-radius: 10px; font-size: .95rem; }
 .banner.error { background: var(--red-soft); color: var(--red); }
 .banner.ok { background: var(--green-soft); color: var(--green); }
+.banner.warn { background: #fff4d6; color: #8a5a00; margin: 0 0 20px; }
+.banner code { font-size: .85em; background: rgb(0 0 0 / .06); padding: 1px 5px; border-radius: 4px; }
 .link { border: 0; background: none; padding: 0; color: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 
 /* ---------- dashboard ---------- */
