@@ -5,6 +5,7 @@
  * Audio format expected by Gemini: raw 16-bit little-endian mono PCM @ 16 kHz.
  */
 import { GoogleGenAI, Modality } from '@google/genai';
+import { logger } from './logger.js';
 
 /**
  * @param {{ apiKey: string, model: string, languageCodes?: string[] }} opts
@@ -30,7 +31,11 @@ export async function openLiveTranscription(opts, cb) {
         if (sc.inputTranscription?.text) cb.onFinal(sc.inputTranscription.text);
       },
       onerror: (e) => cb.onError(new Error(e?.message || 'Gemini Live error')),
-      onclose: (e) => cb.onClose(e?.reason),
+      onclose: (e) => {
+        // Config / model / quota problems usually arrive as a close reason, not onerror.
+        if (e?.code && e.code !== 1000) logger.warn('gemini live closed', { code: e.code, reason: e.reason });
+        cb.onClose(e?.reason);
+      },
     },
   });
 
