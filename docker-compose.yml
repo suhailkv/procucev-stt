@@ -1,9 +1,10 @@
 services:
   db:
     image: postgres:17-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: stt
-      POSTGRES_PASSWORD: stt
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-stt}
       POSTGRES_DB: stt
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -14,16 +15,17 @@ services:
 
   app:
     build: .
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
       PORT: 8080
-      DATABASE_URL: postgres://stt:stt@db:5432/stt
+      DATABASE_URL: postgres://stt:${DB_PASSWORD:-stt}@db:5432/stt
       STT_PROVIDER: ${STT_PROVIDER:-gemini}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports:
-      - '${APP_PORT:-8080}:8080'
+      - '${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:8080'
 
 volumes:
   pgdata:
