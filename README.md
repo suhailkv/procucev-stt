@@ -2,7 +2,8 @@
 
 A web app where you speak — in Hindi, English, or a natural mix of both (Hinglish) — and see the words appear **as you talk**. Every recording is saved to PostgreSQL and managed from a **history dashboard with full CRUD**, plus **read-aloud (Text-to-Speech)**.
 
-> **Live demo:** _link added after deployment_
+> **Live demo:** https://stt.trioga.in  
+> **Repository:** https://github.com/suhailkv/procucev-stt
 > **Assignment:** Procucev AI — Tech Hiring, Assignment 1 (Real-time Transcription)
 
 ---
@@ -24,7 +25,7 @@ A web app where you speak — in Hindi, English, or a natural mix of both (Hingl
 - **Database:** PostgreSQL (raw parameterised SQL + a small migration runner)
 - **Frontend:** React 19 + Vite, AudioWorklet for audio capture
 - **Tests:** Vitest + Supertest (against a real Postgres)
-- **Deploy:** Render (web service) + Neon (managed Postgres); Dockerfile / docker-compose for any VPS
+- **Deploy:** Docker Compose (app + Postgres) on a Linux VPS behind nginx + Let's Encrypt HTTPS; `render.yaml` kept as a free-tier alternative
 
 ---
 
@@ -182,16 +183,26 @@ cd server && npm test
 
 Covers CRUD endpoints (validation, pagination, search incl. literal `%`, 404s) and the live-socket state machine (interim/final relay, save on stop, buffering while connecting, provider failures, empty recordings).
 
-## Deploy (Render + Neon, free tier)
+## Deploy
 
-1. Create a Postgres database on [Neon](https://neon.tech) and copy its connection string.
-2. On [Render](https://render.com): **New → Blueprint** → select this repo (uses `render.yaml`).
-3. Set `DATABASE_URL` (Neon string) and `GEMINI_API_KEY` in the Render dashboard.
-4. Render builds the client, starts the server, and serves everything over HTTPS (required for microphone access).
+**Live: https://stt.trioga.in** — Docker Compose on a Linux VPS, nginx reverse proxy, Let's Encrypt HTTPS (the browser only allows microphone access over HTTPS).
+
+```bash
+# on the server, in the repo folder
+cat > .env <<ENV
+GEMINI_API_KEY=your-key
+DB_PASSWORD=$(openssl rand -hex 16)
+APP_PORT=3120
+ENV
+docker compose -p procucev-stt up -d --build     # app on 127.0.0.1:3120, Postgres on the internal network only
+```
+
+nginx proxies `https://stt.trioga.in` to `127.0.0.1:3120`. The `/ws/` location forwards the `Upgrade`/`Connection` headers so the WebSocket works through the proxy, uses an 11-minute read timeout to outlast a 9-minute session, and caps open recordings per IP (`limit_conn`) because each one is a Gemini session.
+
+**Alternative (free tier):** Render + Neon via `render.yaml` — create a Neon Postgres, then Render → New → Blueprint → this repo, and set `DATABASE_URL` and `GEMINI_API_KEY`.
 
 ## Notes & trade-offs
 
 - **Session length:** Gemini live transcription sessions are capped at 10 minutes; the server stops at 9 min and saves what it has.
 - **No auth:** out of scope for the assignment; the history is shared. Adding users = a `user_id` column + auth middleware in `lib/http.js`.
-- **Free hosting cold start:** Render's free tier sleeps when idle; the first request can take ~30–60 s.
 - **TTS choice:** the browser's Web Speech API is on-device and free; voice quality depends on the OS. An open-source model like Piper could be plugged in server-side.
