@@ -1,8 +1,3 @@
-/**
- * lib/env — wraps `dotenv`.
- * Loads .env once and exposes a validated, typed-by-schema config object.
- * The rest of the app reads configuration ONLY from here.
- */
 import 'dotenv/config';
 import { z } from './validation.js';
 
@@ -14,7 +9,7 @@ const schema = z.object({
   STT_PROVIDER: z.enum(['gemini', 'mock']).default('gemini'),
   GEMINI_API_KEY: z.string().optional(),
   GEMINI_MODEL: z.string().default('gemini-3.5-transcribe-live'),
-  // Gemini live transcription sessions are capped at 10 min; we stop a bit earlier.
+  // Gemini live sessions are capped at 10 min; stop at 9 so the transcript still gets saved.
   MAX_SESSION_SECONDS: z.coerce.number().int().positive().default(540),
   CLIENT_DIST: z.string().optional(),
 });

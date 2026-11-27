@@ -1,19 +1,3 @@
-/**
- * Real-time transcription over WebSocket.
- *
- * Client → server
- *   {"type":"start","languageCodes":["hi-IN","en-IN"]}   (languageCodes optional)
- *   <binary frames>  16 kHz / 16-bit LE / mono PCM, ~100 ms each
- *   {"type":"stop"}
- *
- * Server → client
- *   {"type":"ready"}                       STT session open, keep streaming
- *   {"type":"interim","text"}              speculative text (replace)
- *   {"type":"final","text"}                finalised segment (append)
- *   {"type":"saved","transcription"}       stored in DB after stop
- *   {"type":"empty"}                       nothing was recognised, not saved
- *   {"type":"error","message"}
- */
 import { env } from '../../lib/env.js';
 import { logger } from '../../lib/logger.js';
 import { z } from '../../lib/validation.js';
@@ -21,10 +5,13 @@ import { getSttProvider } from '../stt/index.js';
 import { transcriptionService } from '../transcriptions/index.js';
 import { TranscriptBuffer } from './transcript-buffer.js';
 
-const BYTES_PER_SECOND = 16000 * 2; // 16 kHz × 16-bit
-const FLUSH_IDLE_MS = 1200; // after stop: wait this long after the last final…
-const FLUSH_MAX_MS = 4000; // …but never longer than this
-const MAX_PENDING_CHUNKS = 50; // audio buffered while the STT session is connecting (~5 s)
+const BYTES_PER_SECOND = 16000 * 2;
+// After stop, the engine may still send the last final segment: wait until it has been
+// quiet for FLUSH_IDLE_MS, but never longer than FLUSH_MAX_MS.
+const FLUSH_IDLE_MS = 1200;
+const FLUSH_MAX_MS = 4000;
+// Audio arriving while the STT session is still connecting (~5 s) is kept so first words aren't lost.
+const MAX_PENDING_CHUNKS = 50;
 
 const startMsg = z.object({
   type: z.literal('start'),
@@ -33,7 +20,6 @@ const startMsg = z.object({
 const stopMsg = z.object({ type: z.literal('stop') });
 
 export function handleLiveSocket(socket, { provider = getSttProvider(), save = transcriptionService.create } = {}) {
-  /** @type {'idle'|'connecting'|'streaming'|'stopping'|'done'} */
   let state = 'idle';
   let stt = null;
   let bytes = 0;
@@ -53,9 +39,7 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
     clearTimeout(maxTimer);
     try {
       stt?.close();
-    } catch {
-      /* already closed */
-    }
+    } catch {}
     stt = null;
   };
 
@@ -81,7 +65,7 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
             socket.sendJson({ type: 'error', message: 'Speech service error' });
           },
           onClose: () => {
-            if (state === 'streaming') stop(); // upstream closed on us → save what we have
+            if (state === 'streaming') stop();
           },
         },
       );
@@ -89,7 +73,8 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
       logger.error('stt open failed', { err: err.message });
       return fail(err.message.includes('GEMINI_API_KEY') ? err.message : 'Could not start speech service');
     }
-    if (state !== 'connecting') return cleanup(); // client left / stopped while connecting
+    // The client stopped or disconnected while we were connecting.
+    if (state !== 'connecting') return cleanup();
     state = 'streaming';
     pending.forEach((c) => stt.sendPcm(c));
     pending = [];
@@ -101,7 +86,7 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
   }
 
   function audio(chunk) {
-    if (chunk.length % 2 !== 0) return; // not 16-bit PCM
+    if (chunk.length % 2 !== 0) return;
     bytes += chunk.length;
     if (state === 'streaming') stt.sendPcm(chunk);
     else if (state === 'connecting' && pending.length < MAX_PENDING_CHUNKS) pending.push(chunk);
@@ -118,9 +103,7 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
     clearTimeout(maxTimer);
     try {
       stt.endAudio();
-    } catch {
-      /* ignore */
-    }
+    } catch {}
     await waitForFlush();
 
     const content = transcript.text();
@@ -140,7 +123,6 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
     }
   }
 
-  /** Give the STT engine a moment to emit the last finalised segment. */
   function waitForFlush() {
     const started = Date.now();
     lastFinalAt = Math.max(lastFinalAt, started);
@@ -168,7 +150,7 @@ export function handleLiveSocket(socket, { provider = getSttProvider(), save = t
   });
   socket.onBinary(audio);
   socket.onClose(() => {
-    // Client vanished mid-recording: still persist what was transcribed.
+    // Tab closed mid-recording: still save what was transcribed.
     if (state === 'streaming') void stop();
     else cleanup();
   });

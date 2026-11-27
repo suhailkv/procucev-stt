@@ -1,7 +1,3 @@
-/**
- * lib/microphone — wraps getUserMedia + AudioWorklet.
- * Delivers 16 kHz PCM16 ArrayBuffers (~100 ms each) and an input level 0..1.
- */
 export async function startMicrophone({ onChunk, onLevel }) {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error('Microphone access needs a modern browser over HTTPS');

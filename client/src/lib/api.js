@@ -1,7 +1,3 @@
-/**
- * lib/api — the only place the client talks HTTP (wraps `fetch`).
- * Throws ApiError with the server's message so UI can show it directly.
- */
 export class ApiError extends Error {
   constructor(status, message, details) {
     super(message);

@@ -1,8 +1,3 @@
-/**
- * lib/speech — Text-to-Speech via the browser's built-in Web Speech API
- * (free, on-device, no key). Picks a Hindi/Indian-English voice when present,
- * which reads Hinglish (mixed Hindi-English) text naturally.
- */
 const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
 
 export const ttsSupported = Boolean(synth);
@@ -18,7 +13,6 @@ function pickVoice(text) {
   return null;
 }
 
-/** Speaks text; returns a promise that resolves when done or stopped. */
 export function speak(text, { onEnd } = {}) {
   if (!synth) return;
   synth.cancel();

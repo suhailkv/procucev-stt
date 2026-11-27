@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/** Two-step inline confirmation (no blocking browser dialogs). */
 export default function ConfirmButton({ onConfirm, children, confirmLabel = 'Confirm?' }) {
   const [armed, setArmed] = useState(false);
   useEffect(() => {

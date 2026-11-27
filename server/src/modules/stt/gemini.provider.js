@@ -1,4 +1,3 @@
-/** STT provider backed by Gemini Live (via lib/gemini-live). */
 import { openLiveTranscription } from '../../lib/gemini-live.js';
 import { env } from '../../lib/env.js';
 

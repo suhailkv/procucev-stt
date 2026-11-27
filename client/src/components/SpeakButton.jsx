@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { speak, stopSpeaking, ttsSupported } from '../lib/speech.js';
 
-/** Reads text aloud (Text-to-Speech) with a play/stop toggle. */
 export default function SpeakButton({ text }) {
   const [playing, setPlaying] = useState(false);
   useEffect(() => () => playing && stopSpeaking(), [playing]);

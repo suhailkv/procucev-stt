@@ -1,4 +1,3 @@
-/** Request validation schemas for the transcriptions module. */
 import { z } from '../../lib/validation.js';
 
 export const MAX_CONTENT = 20000;

@@ -1,4 +1,3 @@
-/** lib/router — tiny hash router (two pages don't justify a dependency). */
 import { useEffect, useState } from 'react';
 
 const current = () => location.hash.replace(/^#\/?/, '') || 'record';

@@ -1,4 +1,3 @@
-/** Entry point: migrate DB → start HTTP + WebSocket server → graceful shutdown. */
 import { createServer } from 'node:http';
 import { buildApp } from './app.js';
 import { env } from './lib/env.js';

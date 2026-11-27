@@ -1,16 +1,11 @@
-/**
- * AudioWorklet: converts the mic's native-rate Float32 audio into
- * 16 kHz / 16-bit / mono PCM chunks (~100 ms) and posts them to the main thread,
- * together with an RMS level for the input meter.
- */
 const TARGET_RATE = 16000;
-const CHUNK_SAMPLES = 1600; // 100 ms @ 16 kHz
+const CHUNK_SAMPLES = 1600;
 
 class PcmRecorder extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.ratio = sampleRate / TARGET_RATE; // `sampleRate` is a worklet global
-    this.pos = 0; // fractional read position into the incoming stream
+    this.ratio = sampleRate / TARGET_RATE; // sampleRate is an AudioWorklet global
+    this.pos = 0;
     this.out = new Int16Array(CHUNK_SAMPLES);
     this.outLen = 0;
     this.sumSq = 0;
@@ -20,7 +15,6 @@ class PcmRecorder extends AudioWorkletProcessor {
     const channel = inputs[0]?.[0];
     if (!channel) return true;
 
-    // Linear-interpolation resampler: walk the input in steps of `ratio`.
     while (this.pos < channel.length - 1) {
       const i = Math.floor(this.pos);
       const frac = this.pos - i;

@@ -1,4 +1,3 @@
-/** Data hook for the dashboard: list + search + pagination + CRUD actions. */
 import { useCallback, useEffect, useState } from 'react';
 import { transcriptionsApi } from '../../lib/api.js';
 
@@ -48,7 +47,7 @@ export function useTranscriptions(refreshKey) {
   const remove = async (id) => {
     try {
       await transcriptionsApi.remove(id);
-      // step back a page if we deleted the last item on it
+      // Deleted the last item on this page: go back one page.
       if (data.items.length === 1 && page > 1) setPage(page - 1);
       else await load();
     } catch (err) {

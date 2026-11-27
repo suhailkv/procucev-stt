@@ -3,7 +3,6 @@ import { handleLiveSocket } from '../src/modules/live/live.socket.js';
 import { TranscriptBuffer } from '../src/modules/live/transcript-buffer.js';
 import { mockProvider } from '../src/modules/stt/mock.provider.js';
 
-/** In-memory stand-in for lib/websocket's Socket. */
 function fakeSocket() {
   const handlers = { text: [], bin: [], close: [] };
   const sent = [];
@@ -15,7 +14,6 @@ function fakeSocket() {
     onBinary: (cb) => handlers.bin.push(cb),
     onClose: (cb) => handlers.close.push(cb),
     isOpen: true,
-    // test helpers
     text: (obj) => handlers.text.forEach((cb) => cb(JSON.stringify(obj))),
     audio: (buf) => handlers.bin.forEach((cb) => cb(buf)),
     disconnect: () => handlers.close.forEach((cb) => cb()),
@@ -23,8 +21,7 @@ function fakeSocket() {
 }
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
-const silence = Buffer.alloc(3200); // 100 ms of 16 kHz PCM16
-// 100 ms of a loud square wave, well above the mock's silence threshold
+const silence = Buffer.alloc(3200);
 const chunk = Buffer.alloc(3200);
 for (let i = 0; i < 1600; i++) chunk.writeInt16LE(i % 20 < 10 ? 8000 : -8000, i * 2);
 

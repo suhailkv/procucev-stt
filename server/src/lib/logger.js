@@ -1,7 +1,3 @@
-/**
- * lib/logger — our own tiny structured (JSON-lines) logger.
- * Swap for pino/winston here without touching any caller.
- */
 function log(level, msg, meta) {
   if (process.env.NODE_ENV === 'test' && level !== 'error') return;
   const line = JSON.stringify({ t: new Date().toISOString(), level, msg, ...meta });

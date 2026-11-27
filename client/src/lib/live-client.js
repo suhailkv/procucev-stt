@@ -1,7 +1,3 @@
-/**
- * lib/live-client — wraps the browser WebSocket for the live transcription
- * protocol (see server/src/modules/live/live.socket.js).
- */
 export function connectLive({ languageCodes, onMessage, onClose }) {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   const ws = new WebSocket(`${proto}://${location.host}/ws/transcribe`);
@@ -18,9 +14,7 @@ export function connectLive({ languageCodes, onMessage, onClose }) {
   ws.onmessage = (e) => {
     try {
       onMessage(JSON.parse(e.data));
-    } catch {
-      /* ignore malformed frames */
-    }
+    } catch {}
   };
   ws.onclose = () => onClose?.();
 

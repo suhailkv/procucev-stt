@@ -1,9 +1,3 @@
-/**
- * Minimal forward-only migration runner.
- * Applies every db/migrations/*.sql file once, in filename order, each inside
- * a transaction, and records it in `schema_migrations`.
- * Run directly (`npm run migrate`) or call runMigrations() at server start.
- */
 import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -35,7 +29,6 @@ export async function runMigrations() {
   }
 }
 
-// `node src/db/migrate.js`
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runMigrations()
     .then(() => logger.info('migrations complete'))

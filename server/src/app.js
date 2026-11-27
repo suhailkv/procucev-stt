@@ -1,7 +1,3 @@
-/**
- * Express app composition: middleware → feature routers → SPA → errors.
- * Kept separate from server.js so tests can mount it without listening.
- */
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +17,6 @@ export function buildApp() {
   app.use('/api/transcriptions', transcriptionRouter);
   app.use('/api', notFoundHandler);
 
-  // Serve the built React client (single deployable unit).
   const here = path.dirname(fileURLToPath(import.meta.url));
   const clientDist = path.resolve(env.CLIENT_DIST ?? path.join(here, '../../client/dist'));
   if (existsSync(clientDist)) {

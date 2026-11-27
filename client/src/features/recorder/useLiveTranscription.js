@@ -1,7 +1,3 @@
-/**
- * Orchestrates one recording: mic → WebSocket → live text → saved record.
- * status: idle → connecting → listening → saving → idle
- */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectLive } from '../../lib/live-client.js';
 import { describeMicError, startMicrophone } from '../../lib/microphone.js';
@@ -112,7 +108,6 @@ export function useLiveTranscription({ onSaved } = {}) {
     live.current?.stop();
   }, []);
 
-  // Recording timer
   useEffect(() => {
     if (status !== 'listening') return undefined;
     const startedAt = Date.now() - elapsed;
@@ -121,7 +116,6 @@ export function useLiveTranscription({ onSaved } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  // Release mic/socket if the component unmounts mid-recording
   useEffect(() => () => void teardown(), [teardown]);
 
   return { status, finals, interim, error, notice, level, elapsed, start, stop };

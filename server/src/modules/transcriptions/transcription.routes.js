@@ -1,11 +1,3 @@
-/**
- * REST endpoints (CRUD) — thin: validate input → call service → send JSON.
- *   GET    /api/transcriptions?q=&page=&limit=
- *   GET    /api/transcriptions/:id
- *   POST   /api/transcriptions
- *   PUT    /api/transcriptions/:id
- *   DELETE /api/transcriptions/:id
- */
 import { createRouter } from '../../lib/http.js';
 import { transcriptionService as service } from './transcription.service.js';
 import { createBody, idParam, listQuery, updateBody } from './transcription.schema.js';

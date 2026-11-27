@@ -1,4 +1,3 @@
-/** Public surface of the live-transcription module. */
 import { attachWebSocket } from '../../lib/websocket.js';
 import { handleLiveSocket } from './live.socket.js';
 

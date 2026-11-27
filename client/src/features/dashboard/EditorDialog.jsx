@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** Create / edit form inside a native <dialog>. */
 export default function EditorDialog({ initial, onSubmit, onClose }) {
   const ref = useRef(null);
   const [title, setTitle] = useState(initial?.title ?? '');

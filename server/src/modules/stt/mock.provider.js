@@ -1,13 +1,6 @@
-/**
- * Offline STT provider for tests and demos without an API key.
- * It does NOT recognise speech: while the input is louder than a silence
- * threshold it emits placeholder words (interim on each voiced chunk, a final
- * word every 5 voiced chunks). Silence produces nothing, like a real engine.
- */
 const WORDS = ['[mock]', 'namaste', 'hello', 'aaj', 'meeting', 'hai', 'at', 'five', 'pm'];
-const SILENCE_RMS = 500; // on the 16-bit scale (0..32767)
+const SILENCE_RMS = 500; // 16-bit scale, 0..32767
 
-/** Root-mean-square loudness of a 16-bit little-endian PCM chunk. */
 export function pcmRms(chunk) {
   const samples = Math.floor(chunk.length / 2);
   if (!samples) return 0;

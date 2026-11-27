@@ -31,7 +31,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .shell { min-height: 100vh; display: flex; flex-direction: column; }
 main { flex: 1; width: 100%; max-width: 860px; margin: 0 auto; padding: 32px 20px 64px; }
 
-/* ---------- top bar ---------- */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
   max-width: 860px; width: 100%; margin: 0 auto; padding: 18px 20px;
@@ -51,7 +50,6 @@ h1 { font-family: var(--display); font-weight: 600; font-size: clamp(1.8rem, 4vw
 h1 em { color: var(--saffron); font-style: italic; }
 .lede { color: var(--ink-2); margin: 0 0 28px; font-size: 1.05rem; }
 
-/* ---------- recorder ---------- */
 .recorder-controls { display: flex; align-items: center; gap: 22px; margin-bottom: 20px; }
 .mic-button {
   --level: 0;
@@ -92,7 +90,6 @@ h1 em { color: var(--saffron); font-style: italic; }
 .banner code { font-size: .85em; background: rgb(0 0 0 / .06); padding: 1px 5px; border-radius: 4px; }
 .link { border: 0; background: none; padding: 0; color: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 
-/* ---------- dashboard ---------- */
 .toolbar { display: flex; gap: 10px; margin: 12px 0 8px; }
 .toolbar input {
   flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card);
@@ -126,7 +123,6 @@ h1 em { color: var(--saffron); font-style: italic; }
 
 .pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 20px; color: var(--ink-2); font-size: .9rem; }
 
-/* ---------- dialog ---------- */
 .editor { width: min(560px, calc(100vw - 32px)); border: 0; border-radius: 18px; padding: 0; box-shadow: 0 20px 60px rgb(0 0 0 / .25); }
 .editor::backdrop { background: rgb(23 21 31 / .45); }
 .editor form { padding: 24px; display: grid; gap: 14px; }

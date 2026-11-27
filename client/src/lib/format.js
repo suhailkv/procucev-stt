@@ -1,4 +1,3 @@
-/** lib/format — small display helpers. */
 export function formatDuration(ms) {
   if (ms == null) return '—';
   const s = Math.round(ms / 1000);

@@ -1,8 +1,3 @@
-/**
- * lib/http — wraps `express`.
- * Exposes app/router factories, a typed HttpError and the central error
- * handler. Feature modules build their routes from here only.
- */
 import express from 'express';
 import { ZodError, formatIssues } from './validation.js';
 import { logger } from './logger.js';
@@ -32,7 +27,7 @@ export function notFoundHandler(_req, _res, next) {
   next(HttpError.notFound('Route'));
 }
 
-// Express recognises error middleware by its 4-argument signature.
+// Express only treats middleware with 4 arguments as an error handler.
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, _req, res, _next) {
   if (err instanceof ZodError) {

@@ -1,7 +1,3 @@
-/**
- * Data-access layer: the ONLY place that knows SQL for transcriptions.
- * Maps snake_case rows → camelCase objects.
- */
 import { db } from '../../lib/db.js';
 
 const COLUMNS = 'id, title, content, language, source, duration_ms, created_at, updated_at';
@@ -17,7 +13,7 @@ const toModel = (r) => ({
   updatedAt: r.updated_at,
 });
 
-// Escape LIKE wildcards so a search for "50%" is literal.
+// Escape LIKE wildcards so searching "50%" matches the literal text.
 const likeTerm = (q) => `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
 export const transcriptionRepository = {
@@ -52,7 +48,7 @@ export const transcriptionRepository = {
   },
 
   async update(id, fields) {
-    // Whitelisted column map — only these keys can ever reach SQL.
+    // Only these keys can ever become column names in the SQL.
     const map = { title: 'title', content: 'content', language: 'language' };
     const sets = [];
     const params = [];

@@ -5,7 +5,7 @@ import { useTranscriptions } from './useTranscriptions.js';
 
 export default function Dashboard({ refreshKey }) {
   const t = useTranscriptions(refreshKey);
-  const [editing, setEditing] = useState(null); // null | {} (new) | item
+  const [editing, setEditing] = useState(null);
   const { items, total, totalPages } = t.data;
 
   return (

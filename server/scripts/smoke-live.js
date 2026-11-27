@@ -1,15 +1,4 @@
-/**
- * End-to-end smoke test for the live endpoint without a microphone.
- * Streams a 16 kHz mono PCM16 WAV file in real time and prints what comes back.
- *
- *   node scripts/smoke-live.js path/to/file.wav [ws://localhost:4000/ws/transcribe]
- *
- * Make a test file on macOS:
- *   say -v Lekha -o t.aiff "Kal meeting hai at five pm, please join karna"
- *   afconvert -f WAVE -d LEI16@16000 -c 1 t.aiff t.wav
- */
 import { readFileSync } from 'node:fs';
-// Uses Node's built-in WebSocket client (Node 22+), so no third-party import.
 
 const [file, url = 'ws://localhost:4000/ws/transcribe'] = process.argv.slice(2);
 if (!file) {
@@ -17,7 +6,6 @@ if (!file) {
   process.exit(1);
 }
 
-/** Return the PCM payload of a WAV by scanning RIFF chunks (headers vary in size). */
 function wavPcm(buf) {
   let off = 12;
   while (off + 8 <= buf.length) {
@@ -35,7 +23,7 @@ function wavPcm(buf) {
   throw new Error('no data chunk');
 }
 
-const pcm = Buffer.concat([wavPcm(readFileSync(file)), Buffer.alloc(32000)]); // + 1 s silence
+const pcm = Buffer.concat([wavPcm(readFileSync(file)), Buffer.alloc(32000)]);
 const ws = new WebSocket(url);
 const t0 = Date.now();
 const log = (...a) => console.log(`[${((Date.now() - t0) / 1000).toFixed(1)}s]`, ...a);

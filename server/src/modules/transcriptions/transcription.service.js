@@ -1,11 +1,6 @@
-/**
- * Business logic for transcriptions. Used by both the REST routes and the
- * live WebSocket module (which saves a transcript when recording stops).
- */
 import { HttpError } from '../../lib/http.js';
 import { transcriptionRepository as repo } from './transcription.repository.js';
 
-/** First few words of the transcript become its default title. */
 export function deriveTitle(content, words = 8) {
   const parts = content.trim().split(/\s+/);
   const title = parts.slice(0, words).join(' ');
